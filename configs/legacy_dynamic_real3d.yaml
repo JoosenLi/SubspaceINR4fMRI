@@ -1,0 +1,4 @@
+legacy: true
+name: dynamic_real3d_legacy_reference
+note: Archived DD-INR-style configuration retained only as a reference during the subspaceINR4fMRI refactor.
+source_config: configs/dynamic_real3D.yaml

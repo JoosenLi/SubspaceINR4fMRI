@@ -1,0 +1,47 @@
+experiment:
+  name: benchmark_nufft
+  case_name: Simulation_Mar16_RotatedSpiral
+  run_name: benchmark_nufft_Simulation_Mar16_RotatedSpiral
+  output_root: ./outputs
+  seed: 42
+
+compute:
+  device: cuda
+  gpu_index: 0
+
+data:
+  kspace_path: dataset/sim3DT/Simulation_Mar16_RotatedSpiral/kspace.npy
+  traj_path: dataset/sim3DT/Simulation_Mar16_RotatedSpiral/traj.npy
+  background_init_path: dataset/sim3DT/Simulation_Mar16_RotatedSpiral/averagedBG.npy
+  csm_path: null
+  img_size: [240, 64, 64, 40]
+  num_coils: 1
+  complex_representation: real_imag_lastdim
+  scale_factor: 500.0
+
+time:
+  n_frames: 240
+  tr_seconds: 1.0
+  total_duration_seconds: 240.0
+  coordinate_mode: normalized_0_1
+  tau_max_seconds: 1.0
+
+training:
+  frame_batch_size: 16
+
+nufft:
+  backend: gpunufft
+  density: true
+  preload_per_frame_operators: true
+  reuse_single_operator: false
+  allow_singlecoil_no_csm: true
+  backend_kwargs:
+    use_gpu_direct: true
+
+benchmark:
+  frame_batch_size: 16
+  repetitions: 10
+  warmup_repetitions: 3
+  save_path: null
+  benchmark_forward: true
+  benchmark_adjoint: true

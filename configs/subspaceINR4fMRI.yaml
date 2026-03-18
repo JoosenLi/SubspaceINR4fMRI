@@ -1,0 +1,199 @@
+experiment:
+  name: subspaceINR4fMRI
+  case_name: Simulation_Mar16_RotatedSpiral
+  run_name: subspaceINR4fMRI_Simulation_Mar16_RotatedSpiral
+  output_root: ./outputs
+  seed: 42
+
+compute:
+  device: cuda
+  gpu_index: 0
+  visible_gpus: [0, 1]
+  memory_max_mode: true
+
+data:
+  kspace_path: dataset/sim3DT/Simulation_Mar16_RotatedSpiral/kspace.npy
+  traj_path: dataset/sim3DT/Simulation_Mar16_RotatedSpiral/traj.npy
+  background_init_path: dataset/sim3DT/Simulation_Mar16_RotatedSpiral/averagedBG.npy
+  csm_path: null
+  img_size: [240, 64, 64, 40]
+  num_coils: 1
+  complex_representation: real_imag_lastdim
+  scale_factor: 500.0
+
+time:
+  n_frames: 240
+  tr_seconds: 1.0
+  total_duration_seconds: 240.0
+  coordinate_mode: normalized_0_1
+  tau_max_seconds: 1.0
+
+model:
+  rank: 28
+  use_residual: false
+  use_delay: true
+  complex_factorization: real_coeff_complex_basis
+  cache_spatial_outputs: true
+  chunked_spatial_eval: false
+  # Unused while chunked_spatial_eval=false. One full 64x64x40 volume is 163840 voxels.
+  spatial_chunk_size: 163840
+
+spatial_encoder:
+  type: tinycudann_hashgrid
+  input_dim: 3
+  num_levels: 16
+  level_dim: 2
+  log2_hashmap_size: 19
+  base_resolution: 16
+  per_level_scale: 1.5
+  interpolation: Linear
+
+residual_head:
+  # Only used when model.use_residual=true.
+  type: tinycudann_mlp
+  network_type: FullyFusedMLP
+  hidden_dim: 64
+  num_hidden_layers: 2
+  output_dim: 2
+  output_activation: None
+  output_init_scale: 1.0e-4
+
+coefficient_head:
+  type: tinycudann_mlp
+  network_type: FullyFusedMLP
+  hidden_dim: 64
+  num_hidden_layers: 2
+  output_dim: 28
+  output_activation: None
+
+delay_head:
+  enabled: true
+  type: tinycudann_mlp
+  network_type: FullyFusedMLP
+  hidden_dim: 64
+  num_hidden_layers: 2
+  output_dim: 1
+  output_activation: None
+  output_init_scale: 1.0e-4
+
+temporal_branch:
+  encoding: fourier
+  # Keep this moderate on normalized time; very large values make dg/dt_norm explode.
+  fourier_num_frequencies: 16
+  network_type: pytorch_siren
+  hidden_dim: 64
+  num_hidden_layers: 2
+  output_dim: 56
+  output_init_scale: 1.0e-4
+  use_autograd_derivative: true
+  derivative_only_when_delay_enabled: true
+
+nufft:
+  backend: cufinufft
+  density: true
+  preload_per_frame_operators: true
+  reuse_single_operator: false
+  allow_singlecoil_no_csm: true
+  backend_kwargs:
+    use_gpu_direct: true
+
+losses:
+  data:
+    type: complex_mse
+    weight: 1.0
+  residual_energy:
+    enabled: false
+    lambda: 1.0e-4
+    norm: l2
+  tau_smooth:
+    enabled: true
+    lambda: 1.0e-4
+    type: squared_grad
+    only_if_use_delay: true
+  temporal_basis_smooth:
+    enabled: true
+    lambda: 1.0e-4
+    type: first_derivative_l2
+    num_time_samples: 16
+    reuse_batch_derivative: true
+
+optimizer:
+  type: Adam
+  lr: 2.0e-4
+  beta1: 0.9
+  beta2: 0.99
+  weight_decay: 0.0
+
+scheduler:
+  type: CosineAnnealingLR
+  t_max: 1000
+  eta_min: 1.0e-7
+
+training:
+  num_epochs: 1000
+  frame_batch_size: 16
+  shuffle_frames_each_epoch: true
+  amp: false
+  grad_clip: 1.0
+  detect_anomaly: false
+  zero_grad_set_to_none: true
+  preload_kspace_to_device: true
+  gradient_sanity_check: false
+  startup_diagnostics: false
+  profile_first_steps: 0
+
+warmup:
+  residual_lambda_warmup_epochs: 50
+  tau_lambda_warmup_epochs: 100
+  temporal_smooth_lambda_warmup_epochs: 100
+
+logging:
+  log_interval: 20
+  hist_interval: 0
+  save_interval: 100
+  save_reconstruction_snapshot: false
+  save_reconstruction_every: 100
+  tensorboard: false
+  log_peak_memory: true
+
+checkpointing:
+  save_optimizer: true
+  save_scheduler: true
+  keep_last_k: 5
+
+benchmark:
+  enabled: false
+  frame_batch_size: 16
+  repetitions: 10
+  warmup_repetitions: 3
+  save_path: null
+  benchmark_forward: true
+  benchmark_adjoint: true
+
+evaluation:
+  enabled: true
+  dataloader_mrd_path: dataset/sim3DT/Simulation_Mar16_RotatedSpiral/dataloader.mrd
+  tr_seconds: 1.0
+  roi_threshold: 0.05
+  f2_target_threshold: 3.3
+  every_n_epochs: 25
+  primary_metric: f2_fixed
+  save_best_checkpoint: true
+  save_reconstruction_on_eval: false
+  save_activation_arrays: false
+  save_filtered_activation: false
+  cluster_voxel_thresh: 3.0
+  cluster_min_size: 100
+  cluster_connectivity: 6
+  cluster_two_sided: false
+  cluster_use_abs: false
+  simulation:
+    block_off: 20
+    block_on: 20
+    duration: 240
+    atlas: hardvard-oxford__cort-maxprob-thr0-1mm
+    atlas_label: 48
+    phantom_sub_id: 4
+    tissue_file: tissue_3T
+    phantom_output_res: 1
+    use_gpu_resample: true

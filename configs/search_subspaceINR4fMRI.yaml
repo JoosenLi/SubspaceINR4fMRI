@@ -1,0 +1,13 @@
+experiment:
+  name: search_subspaceINR4fMRI
+  output_root: ./outputs/search_subspaceINR4fMRI
+
+search:
+  base_config: /volatile/home/ql284910/data/HashINR/configs/subspaceINR4fMRI.yaml
+  output_root: /volatile/home/ql284910/data/HashINR/outputs/search_subspaceINR4fMRI
+  gpus: [0, 1]
+  max_parallel_trials: 2
+  resume: true
+  metric_priority: [f2_fixed, f2_max, loss_data]
+  round0_profile_epochs: 4
+  existing_subspace_run: null
