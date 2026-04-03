@@ -17,7 +17,7 @@ PACKAGE_PARENT = PROJECT_ROOT.parent
 if str(PACKAGE_PARENT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_PARENT))
 
-from HashINR.utils import load_yaml_config
+from subspaceINR4fMRI.utils import load_yaml_config
 
 
 TRAIN_SCRIPT = PROJECT_ROOT / "scripts" / "train_subspace_inr_3d_fmri.py"

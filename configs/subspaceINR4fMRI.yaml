@@ -114,7 +114,14 @@ losses:
     enabled: true
     lambda: 1.0e-4
     type: first_derivative_l2
-    num_time_samples: 16
+    # This does NOT change the number of reconstructed frames per optimizer step.
+    # It only controls how many extra temporal coordinates are sampled for the
+    # temporal-basis smoothness loss when `reuse_batch_derivative: false` or when
+    # `model.use_delay: false`.
+    num_time_samples: 20
+    # When true and `model.use_delay: true`, the smoothness loss reuses the
+    # derivative already computed for the current frame batch, so `num_time_samples`
+    # does not materially affect memory.
     reuse_batch_derivative: true
 
 optimizer:
@@ -131,6 +138,7 @@ scheduler:
 
 training:
   num_epochs: 1000
+  # This is the actual number of frames synthesized and passed through NUFFT per step.
   frame_batch_size: 16
   shuffle_frames_each_epoch: true
   amp: false

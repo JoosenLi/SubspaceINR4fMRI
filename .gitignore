@@ -1,18 +1,26 @@
-dataset/
-data/
+# outputs and symlinks
 outputs/
 temp/
+docs/experiments/**/artifacts/
 
-__pycache__/
-*.pyc
-*.pyo
-
+# datasets and heavy arrays
+data/
+datasets/
+*.npy
+*.npz
 *.pt
 *.pth
 *.ckpt
-*.npy
-*.npz
-*.mrd
-*.h5
 *.nii
 *.nii.gz
+*.mrd
+*.h5
+
+# temp and cache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.log
+
+# local editor
+.vscode/

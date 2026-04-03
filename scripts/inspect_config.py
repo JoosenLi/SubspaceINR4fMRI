@@ -2,17 +2,11 @@ from __future__ import annotations
 
 import argparse
 import pprint
-import sys
 from pathlib import Path
 
+import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-PACKAGE_PARENT = PROJECT_ROOT.parent
-if str(PACKAGE_PARENT) not in sys.path:
-    sys.path.insert(0, str(PACKAGE_PARENT))
-
-from HashINR.utils import load_yaml_config
-
 
 
 def parse_args() -> argparse.Namespace:
@@ -29,7 +23,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    config = load_yaml_config(args.config)
+    config_path = Path(args.config).expanduser().resolve()
+    with config_path.open("r", encoding="utf-8") as handle:
+        config = yaml.safe_load(handle)
     pprint.pprint(config, sort_dicts=False)
 
 

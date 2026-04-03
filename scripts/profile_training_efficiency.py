@@ -15,8 +15,8 @@ PACKAGE_PARENT = PROJECT_ROOT.parent
 if str(PACKAGE_PARENT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_PARENT))
 
-from HashINR.training import train_subspace_inr_3d_fmri
-from HashINR.utils import apply_dotlist_overrides, load_yaml_config
+from subspaceINR4fMRI.training import train_subspace_inr_3d_fmri
+from subspaceINR4fMRI.utils import apply_dotlist_overrides, load_yaml_config
 
 
 class GPUSampler:

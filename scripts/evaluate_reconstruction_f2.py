@@ -11,8 +11,8 @@ PACKAGE_PARENT = PROJECT_ROOT.parent
 if str(PACKAGE_PARENT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_PARENT))
 
-from HashINR.evaluation import evaluate_checkpoint, evaluate_reconstruction_path
-from HashINR.utils import load_yaml_config
+from subspaceINR4fMRI.evaluation import evaluate_checkpoint, evaluate_reconstruction_path
+from subspaceINR4fMRI.utils import load_yaml_config
 
 
 def parse_args() -> argparse.Namespace:

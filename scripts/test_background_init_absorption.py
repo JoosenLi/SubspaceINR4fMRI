@@ -15,11 +15,11 @@ PACKAGE_PARENT = PROJECT_ROOT.parent
 if str(PACKAGE_PARENT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_PARENT))
 
-from HashINR.data import create_normalized_spatial_grid, load_fmri_data_bundle
-from HashINR.models import SpatialComponents, SubspaceINR4fMRI, complex_mse, real_imag_to_complex
-from HashINR.nufft import create_nufft_backend
-from HashINR.training.trainer_utils import prepare_nufft_config, resolve_compute_device, set_random_seed
-from HashINR.utils import apply_dotlist_overrides, load_yaml_config
+from subspaceINR4fMRI.data import create_normalized_spatial_grid, load_fmri_data_bundle
+from subspaceINR4fMRI.models import SpatialComponents, SubspaceINR4fMRI, complex_mse, real_imag_to_complex
+from subspaceINR4fMRI.nufft import create_nufft_backend
+from subspaceINR4fMRI.training.trainer_utils import prepare_nufft_config, resolve_compute_device, set_random_seed
+from subspaceINR4fMRI.utils import apply_dotlist_overrides, load_yaml_config
 
 
 def parse_args() -> argparse.Namespace:

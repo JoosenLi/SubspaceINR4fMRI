@@ -16,12 +16,12 @@ PACKAGE_PARENT = PROJECT_ROOT.parent
 if str(PACKAGE_PARENT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_PARENT))
 
-from HashINR.data import load_fmri_data_bundle
-from HashINR.models.complex_ops import real_imag_to_complex
-from HashINR.nufft import create_nufft_backend
-from HashINR.nufft.nufft_utils import cuda_timed_call
-from HashINR.training.trainer_utils import prepare_nufft_config, prepare_run_directories, resolve_compute_device
-from HashINR.utils import get_peak_memory_stats, load_yaml_config, reset_peak_memory_stats
+from subspaceINR4fMRI.data import load_fmri_data_bundle
+from subspaceINR4fMRI.models.complex_ops import real_imag_to_complex
+from subspaceINR4fMRI.nufft import create_nufft_backend
+from subspaceINR4fMRI.nufft.nufft_utils import cuda_timed_call
+from subspaceINR4fMRI.training.trainer_utils import prepare_nufft_config, prepare_run_directories, resolve_compute_device
+from subspaceINR4fMRI.utils import get_peak_memory_stats, load_yaml_config, reset_peak_memory_stats
 
 
 

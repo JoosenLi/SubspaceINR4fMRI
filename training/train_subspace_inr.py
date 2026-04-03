@@ -348,7 +348,14 @@ def _train_impl(config: Dict, bundle):
     temporal_reg_cfg = losses_cfg.get("temporal_basis_smooth", {})
     temporal_reg_num_samples = int(temporal_reg_cfg.get("num_time_samples", frame_batch_size))
     temporal_reg_reuse_batch = bool(temporal_reg_cfg.get("reuse_batch_derivative", True))
-    temporal_reg_coords = _select_temporal_regularization_coords(full_time_coords, temporal_reg_num_samples)
+    # `num_time_samples` only matters when we evaluate an extra temporal-regularization pass.
+    # If delay is enabled and we reuse the batch derivative, the smoothness loss reuses
+    # `basis_derivative_batch` from the current frame batch instead of allocating a separate
+    # time-sample batch here.
+    temporal_reg_uses_batch_derivative = temporal_reg_reuse_batch and model.use_delay
+    temporal_reg_coords = None
+    if not temporal_reg_uses_batch_derivative:
+        temporal_reg_coords = _select_temporal_regularization_coords(full_time_coords, temporal_reg_num_samples)
     profile_first_steps = int(training_cfg.get("profile_first_steps", 0 if device.type == "cuda" else 0))
 
     log_interval = int(logging_cfg.get("log_interval", 20))
@@ -513,9 +520,14 @@ def _train_impl(config: Dict, bundle):
 
                 temporal_smooth_enabled = bool(temporal_reg_cfg.get("enabled", True))
                 if temporal_smooth_enabled:
-                    if temporal_reg_reuse_batch and basis_derivative_batch is not None:
+                    if temporal_reg_uses_batch_derivative and basis_derivative_batch is not None:
                         temporal_derivative = basis_derivative_batch
                     else:
+                        if temporal_reg_coords is None:
+                            raise RuntimeError(
+                                "Temporal regularization requested a separate derivative pass, "
+                                "but temporal_reg_coords was not initialized."
+                            )
                         _, temporal_derivative = model.evaluate_temporal_basis(temporal_reg_coords, need_derivative=True)
                     if temporal_derivative is None:
                         raise RuntimeError("Temporal derivative is required for temporal basis smoothness loss.")
