@@ -2,6 +2,11 @@
 outputs/
 temp/
 docs/experiments/**/artifacts/
+.codex/
+AgentPlan/
+CodeArchitecture/
+dataset/
+docs/
 
 # datasets and heavy arrays
 data/
